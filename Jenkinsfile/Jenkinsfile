@@ -13,6 +13,7 @@ pipeline {
                 echo 'Login successfully'
             }
         }
+        
         stage('Build docker images') {
             steps {
                 // Building stage
@@ -37,13 +38,17 @@ pipeline {
                 sh "docker images"
             }
         }
+
         stage('Running the image on K8s Cluster') {
             steps {
+                sh '''
                 sh "kubectl apply -f ./catalog-deployment"
                 sh "kubectl get pods"
                 sh "kubectl get deploy"
+                '''
             }
         }
+        
         stage('Confirm Deployment is running') {
             steps {
                 sh '''
