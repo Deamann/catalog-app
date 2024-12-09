@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: catalog-app-deployment
+  labels:
+    app: catalog-app
+spec:
+  replicas: 2 # Adjust the number of replicas as needed
+  selector:
+    matchLabels:
+      app: catalog-app
+  template:
+    metadata:
+      labels:
+        app: catalog-app
+    spec:
+      containers:
+      - name: catalog-app
+        image: catalog-app:v1  # Ensure the image is built and available in your registry
+        ports:
+        - containerPort: 3001
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: catalog-app-service
+  labels:
+    app: catalog-app
+spec:
+  selector:
+    app: catalog-app
+  ports:
+    - protocol: TCP
+      port: 3001 # Port exposed by the service
+      targetPort: 3001 # Port on the container
+  type: NodePort  # Use NodePort or ClusterIP for internal access
+

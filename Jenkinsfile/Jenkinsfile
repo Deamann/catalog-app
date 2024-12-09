@@ -1,0 +1,65 @@
+pipeline {
+    agent any
+    environment {
+        //define your vars
+        NAME = 'Deamann'
+    }
+
+    stages {
+
+        stage('Login to docker hub') {
+            steps {
+                sh "cat passwd | docker login -u profftimothy@gmail.com --password-stdin"
+                echo 'Login successfully'
+            }
+        }
+        stage('Build docker images') {
+            steps {
+                // Building stage
+                echo "Welcome to ${NAME} Jenkins World"
+                sh '''
+                docker build . -t deamann/catalog-app:v1
+                '''
+                echo " The Build Url is ${BUILD_URL}"
+            }
+        }
+
+        stage('Push Docker Image to Docker Hub') {
+            steps {
+                sh '''
+                docker push deamann/catalog-app:latest
+                '''
+            }
+        }
+
+        stage('Test') {
+            steps {
+                sh "docker images"
+            }
+        }
+        stage('Running the image on K8s Cluster') {
+            steps {
+                sh "kubectl apply -f ./catalog-deployment"
+                sh "kubectl get pods"
+                sh "kubectl get deploy"
+            }
+        }
+        stage('Confirm Deployment is running') {
+            steps {
+                sh '''
+                kubectl get po,svc,deployment
+                '''
+            }
+        }
+    }
+
+    post {
+        success {
+            // Actions to be perform when the pipeline is successful
+            echo "My 2nd DevOps Project worked... Hurrah ${BUILD_ID} build"
+        }
+        failure {
+            echo "Pipeline failed...Oooops"
+        }
+    }
+}
