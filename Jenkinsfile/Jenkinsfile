@@ -42,7 +42,7 @@ pipeline {
         stage('Run the Image on K8s Cluster') {
             steps {
                 sh '''
-                kubectl apply -f ./catalogapp-deployment
+                kubectl apply -f ./catalog-deployment
                 kubectl get pods
                 kubectl get deploy
                 '''
