@@ -1,33 +1,34 @@
 pipeline {
     agent any
     environment {
-        //define your vars
+        // Define your vars
         NAME = 'Deamann'
     }
 
     stages {
 
-        stage('Login to docker hub') {
+        stage('Login to Docker Hub') {
             steps {
                 sh "cat passwd | docker login -u profftimothy@gmail.com --password-stdin"
                 echo 'Login successfully'
             }
         }
-        stage('Build docker images') {
+
+        stage('Build Docker Image') {
             steps {
                 // Building stage
-                echo "Welcome to ${NAME} Jenkins World"
+                echo "Welcome to ${NAME}'s Jenkins World"
                 sh '''
                 docker build . -t deamann/catalog-app:v1
                 '''
-                echo " The Build Url is ${BUILD_URL}"
+                echo "The Build URL is ${BUILD_URL}"
             }
         }
 
         stage('Push Docker Image to Docker Hub') {
             steps {
                 sh '''
-                docker push deamann/catalog-app:latest
+                docker push deamann/catalog-app:v1
                 '''
             }
         }
@@ -37,14 +38,18 @@ pipeline {
                 sh "docker images"
             }
         }
-        stage('Running the image on K8s Cluster') {
+
+        stage('Run the Image on K8s Cluster') {
             steps {
-                sh "kubectl apply -f ./catalog-deployment"
-                sh "kubectl get pods"
-                sh "kubectl get deploy"
+                sh '''
+                kubectl apply -f ./catalog-deployment
+                kubectl get pods
+                kubectl get deploy
+                '''
             }
         }
-        stage('Confirm Deployment is running') {
+
+        stage('Confirm Deployment is Running') {
             steps {
                 sh '''
                 kubectl get po,svc,deployment
@@ -55,10 +60,11 @@ pipeline {
 
     post {
         success {
-            // Actions to be perform when the pipeline is successful
-            echo "My 2nd DevOps Project worked... Hurrah ${BUILD_ID} build"
+            // Actions to perform when the pipeline is successful
+            echo "DevOps Project... Hurrah! Build ${BUILD_ID} was successful!"
         }
         failure {
-            echo "Pipeline failed...Oooops"
-    }
+            echo "Pipeline failed... Oooops"
+        }
+    }
 }
